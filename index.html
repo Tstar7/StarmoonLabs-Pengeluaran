@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="description" content="Aplikasi pengeluaran pribadi offline dengan dashboard, grafik, dan backup data." />
+  <title>Dompet Bulanan</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navigasi utama">
+      <div class="brand">
+        <div class="brand-mark logo-moon" aria-label="Logo Dompet Bulanan">
+          <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+            <defs>
+              <linearGradient id="moonGradient" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0%" stop-color="#fde68a" />
+                <stop offset="100%" stop-color="#f97316" />
+              </linearGradient>
+              <linearGradient id="starGradient" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="100%" stop-color="#bfdbfe" />
+              </linearGradient>
+            </defs>
+            <circle cx="30" cy="32" r="22" fill="url(#moonGradient)" />
+            <circle cx="39" cy="25" r="22" fill="#1e3a8a" />
+            <path d="M47 8l2.2 7h7.3l-5.9 4.3 2.3 7-5.9-4.3-6 4.3 2.3-7-5.9-4.3h7.3L47 8z" fill="url(#starGradient)" />
+            <path d="M18 40l1.4 4.3H24l-3.7 2.7 1.4 4.3L18 48.6l-3.7 2.7 1.4-4.3L12 44.3h4.6L18 40z" fill="#ffffff" opacity="0.95" />
+          </svg>
+        </div>
+        <div>
+          <p class="eyebrow">StarmoonLabs</p>
+          <h1>Dompet Bulanan</h1>
+        </div>
+      </div>
+
+      <nav class="menu">
+        <a class="menu-item active" href="#dashboard" data-view="dashboard">
+          <span>🏠</span> Dashboard
+        </a>
+        <a class="menu-item" href="#transaksi" data-view="transaksi">
+          <span>🧾</span> Transaksi
+        </a>
+        <a class="menu-item" href="#grafik" data-view="grafik">
+          <span>📊</span> Grafik
+        </a>
+        <a class="menu-item" href="#backup" data-view="backup">
+          <span>💾</span> Backup
+        </a>
+      </nav>
+
+      <div class="side-card">
+        <p class="side-card-title">Status data</p>
+        <p class="side-card-text">Semua catatan tersimpan di perangkat ini memakai localStorage.</p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Aplikasi Pengeluaran Pribadi</p>
+          <h2 id="pageTitle">Dashboard</h2>
+        </div>
+        <div class="top-actions">
+          <button id="installBtn" class="btn install-app hidden" type="button">⬇️ Install App</button>
+          <button id="themeToggle" class="btn icon" type="button" aria-label="Ganti tema">🌙</button>
+        </div>
+      </header>
+
+      <section class="hero-card">
+        <div>
+          <p class="eyebrow">Ringkasan Bulan Ini</p>
+          <h2 id="heroMonth">Mei 2026</h2>
+          <p class="muted">Pantau pengeluaran, pemasukan, budget, dan kebiasaan belanja dalam satu tempat.</p>
+        </div>
+        <div class="hero-controls">
+          <label for="monthFilter">Pilih bulan</label>
+          <input id="monthFilter" type="month" />
+        </div>
+      </section>
+
+      <section id="dashboard" class="view active-view">
+        <div class="summary-grid">
+          <article class="stat-card primary">
+            <p>Total Pengeluaran</p>
+            <h3 id="totalExpense">Rp0</h3>
+            <span id="expenseCount">0 transaksi keluar</span>
+          </article>
+          <article class="stat-card success">
+            <p>Total Pemasukan</p>
+            <h3 id="totalIncome">Rp0</h3>
+            <span id="incomeCount">0 transaksi masuk</span>
+          </article>
+          <article class="stat-card warning">
+            <p>Sisa Budget</p>
+            <h3 id="budgetLeft">Rp0</h3>
+            <span id="budgetStatus">Atur budget bulanan</span>
+          </article>
+          <article class="stat-card soft">
+            <p>Rata-rata Harian</p>
+            <h3 id="dailyAverage">Rp0</h3>
+            <span id="topCategory">Kategori teratas: -</span>
+          </article>
+        </div>
+
+        <div class="content-grid">
+          <article class="panel form-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Catatan Baru</p>
+                <h3 id="formTitle">Tambah Transaksi</h3>
+              </div>
+              <button id="cancelEditBtn" class="btn small ghost hidden" type="button">Batal edit</button>
+            </div>
+
+            <form id="transactionForm" class="transaction-form">
+              <input type="hidden" id="editId" />
+              <div class="field-row two">
+                <label>
+                  Jenis
+                  <select id="typeInput" required>
+                    <option value="expense">Pengeluaran</option>
+                    <option value="income">Pemasukan</option>
+                  </select>
+                </label>
+                <label>
+                  Tanggal
+                  <input id="dateInput" type="date" required />
+                </label>
+              </div>
+              <label>
+                Nama transaksi
+                <input id="nameInput" type="text" placeholder="Contoh: Makan siang" required />
+              </label>
+              <div class="field-row two">
+                <label>
+                  Kategori
+                  <select id="categoryInput" required></select>
+                </label>
+                <label>
+                  Nominal
+                  <input id="amountInput" type="text" inputmode="numeric" autocomplete="off" placeholder="Contoh: 25.000" required />
+                </label>
+              </div>
+              <div class="field-row two">
+                <label>
+                  Metode
+                  <select id="methodInput">
+                    <option>Tunai</option>
+                    <option>QRIS</option>
+                    <option>Transfer</option>
+                    <option>E-Wallet</option>
+                    <option>Kartu Debit</option>
+                    <option>Lainnya</option>
+                  </select>
+                </label>
+                <label>
+                  Catatan
+                  <input id="noteInput" type="text" placeholder="Opsional" />
+                </label>
+              </div>
+              <button class="btn primary full" type="submit">Simpan Transaksi</button>
+            </form>
+          </article>
+
+          <article class="panel budget-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Budget Bulanan</p>
+                <h3>Target Pengeluaran</h3>
+              </div>
+            </div>
+            <div class="budget-form">
+              <label>
+                Budget bulan ini
+                <input id="budgetInput" type="text" inputmode="numeric" autocomplete="off" placeholder="Contoh: 1.500.000" />
+              </label>
+              <button id="saveBudgetBtn" class="btn secondary full" type="button">Simpan Budget</button>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-label">
+                <span>Terpakai</span>
+                <strong id="budgetPercent">0%</strong>
+              </div>
+              <div class="progress-track">
+                <div id="budgetProgress" class="progress-fill"></div>
+              </div>
+              <p id="budgetHint" class="muted">Budget belum diatur.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="content-grid charts-grid">
+          <article class="panel chart-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Grafik Kategori</p>
+                <h3>Pengeluaran per Kategori</h3>
+              </div>
+            </div>
+            <canvas id="categoryChart" height="260" aria-label="Grafik pengeluaran per kategori"></canvas>
+            <p id="categoryEmpty" class="empty-note hidden">Belum ada data pengeluaran pada bulan ini.</p>
+          </article>
+          <article class="panel chart-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Tren Harian</p>
+                <h3>Pengeluaran Harian</h3>
+              </div>
+            </div>
+            <canvas id="dailyChart" height="260" aria-label="Grafik tren pengeluaran harian"></canvas>
+            <p id="dailyEmpty" class="empty-note hidden">Belum ada data untuk ditampilkan.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="transaksi" class="view">
+        <article class="panel">
+          <div class="panel-header table-header">
+            <div>
+              <p class="eyebrow">Riwayat</p>
+              <h3>Daftar Transaksi</h3>
+            </div>
+            <div class="filter-row">
+              <input id="searchInput" type="search" placeholder="Cari transaksi..." />
+              <select id="typeFilter">
+                <option value="all">Semua</option>
+                <option value="expense">Pengeluaran</option>
+                <option value="income">Pemasukan</option>
+              </select>
+              <select id="categoryFilter">
+                <option value="all">Semua kategori</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="transactionList" class="transaction-list"></div>
+          <p id="listEmpty" class="empty-note hidden">Belum ada transaksi yang cocok.</p>
+        </article>
+      </section>
+
+      <section id="grafik" class="view">
+        <div class="content-grid charts-grid">
+          <article class="panel chart-panel tall">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Analisis</p>
+                <h3>Komposisi Pengeluaran</h3>
+              </div>
+            </div>
+            <div class="pie-layout">
+              <canvas id="pieChart" height="280" aria-label="Diagram komposisi pengeluaran"></canvas>
+              <div id="pieLegend" class="pie-legend" aria-label="Keterangan diagram komposisi pengeluaran"></div>
+            </div>
+          </article>
+          <article class="panel chart-panel tall">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Analisis</p>
+                <h3>Perbandingan Mingguan</h3>
+              </div>
+            </div>
+            <canvas id="weeklyChart" height="320" aria-label="Grafik pengeluaran mingguan"></canvas>
+          </article>
+        </div>
+      </section>
+
+      <section id="backup" class="view">
+        <div class="content-grid backup-grid">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Backup</p>
+                <h3>Export Data</h3>
+              </div>
+            </div>
+            <p class="muted">Simpan data ke file agar aman saat pindah HP, ganti browser, atau membersihkan cache.</p>
+            <div class="button-stack">
+              <button id="exportJsonBtn" class="btn primary" type="button">Export JSON</button>
+              <button id="exportCsvBtn" class="btn secondary" type="button">Export CSV</button>
+              <button id="exportPdfBtn" class="btn secondary" type="button">Export PDF</button>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Restore</p>
+                <h3>Import Data</h3>
+              </div>
+            </div>
+            <p class="muted">Masukkan file JSON hasil backup. Data lama bisa digabung atau diganti.</p>
+            <input id="importFile" type="file" accept="application/json,.json" />
+            <div class="button-stack">
+              <button id="importMergeBtn" class="btn secondary" type="button">Import & Gabungkan</button>
+              <button id="importReplaceBtn" class="btn danger" type="button">Import & Ganti Semua</button>
+            </div>
+          </article>
+
+          <article class="panel danger-zone">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Opsional</p>
+                <h3>Kelola Data</h3>
+              </div>
+            </div>
+            <p class="muted">Gunakan data contoh untuk mencoba aplikasi, atau reset semua data jika ingin mulai dari awal.</p>
+            <div class="button-stack">
+              <button id="sampleBtn" class="btn ghost" type="button">Isi Data Contoh</button>
+              <button id="resetBtn" class="btn danger" type="button">Hapus Semua Data</button>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
